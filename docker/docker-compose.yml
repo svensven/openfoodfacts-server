@@ -6,6 +6,8 @@ services:
       - dbdata:/var/lib/mongodb
     networks:
       - webnet
+    ports:
+      - 27017:27017
   memcached:
     image: memcached:1.6-alpine
     networks:
@@ -50,6 +52,8 @@ services:
     command: ["/bin/sh", "/usr/local/bin/po-foreground.sh"]
     networks:
       - webnet
+    ports:
+      - 81:80
   frontend:
     image: docker.pkg.github.com/openfoodfacts/openfoodfacts-server/frontend:latest
     depends_on:
