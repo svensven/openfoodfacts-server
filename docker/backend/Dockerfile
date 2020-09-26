@@ -10,6 +10,7 @@ RUN set -x \
     gcc \
     less \
     libapache2-mod-perl2 \
+    libapache2-reload-perl \
     # libexpat1-dev \
     make \
     wget \
