@@ -19,6 +19,9 @@ services:
       - type: bind
         source: /mnt/openfoodfacts-server/
         target: /mnt/openfoodfacts-server/
+      - type: bind
+        source: /mnt/repos/
+        target: /mnt/repos/
   frontend:
     image: nginx:stable-alpine
     volumes:
