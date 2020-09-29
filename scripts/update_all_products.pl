@@ -276,15 +276,11 @@ my $products_count = $products_collection->count_documents($query_ref);
 print STDERR "$products_count documents to update.\n";
 if ($count) { exit(0); }
 
+my $curs_skip = 0;
+my $curs_limit = 10000;
+my $still_getting_records = 1;
+
 my $cursor;
-if ($mongodb_to_mongodb) {
-	# retrieve all fields
-	$cursor = $products_collection->query($query_ref);
-} else {
-	# only retrieve important fields
-	$cursor = $products_collection->query($query_ref)->fields({ _id => 1, code => 1, owner => 1 });
-}
-$cursor->immortal(1);
 
 my $n = 0;    # number of products updated
 my $m = 0;    # number of products with a new version created
@@ -294,8 +290,28 @@ my $fix_rev_not_incremented_fixed = 0;
 # Used to get stats on fields deleted by an user
 my %deleted_fields = ();
 
+
+while ($still_getting_records != 0) {
+
+	print STDERR "\n";
+	print STDERR "New cursor: skip = $curs_skip , limit = $curs_limit\n";
+	print STDERR "\n";
+
+	if ($mongodb_to_mongodb) {
+		# retrieve all fields
+		$cursor = $products_collection->query($query_ref)->skip($curs_skip)->limit($curs_limit);
+	} else {
+		# only retrieve important fields
+		$cursor = $products_collection->query($query_ref)->fields({ _id => 1, code => 1, owner => 1 })->skip($curs_skip)->limit($curs_limit);
+	}
+	$cursor->immortal(1);
+
+	$still_getting_records = 0;
+
 while (my $product_ref = $cursor->next) {
 
+	$still_getting_records = 1;
+	
 	my $productid = $product_ref->{_id};
 	my $code = $product_ref->{code};
 	my $path = product_path($product_ref);
@@ -990,7 +1006,11 @@ while (my $product_ref = $cursor->next) {
 		print STDERR "Unable to load product file for product code $code\n";
 	}
 
-}
+} # while $cursor->next
+
+	$curs_skip += $curs_limit;
+
+} # while $still_getting_records
 
 print "$n products updated (pretend: $pretend) - $m new versions created\n";
 
