@@ -127,6 +127,7 @@ RUN set -x \
     libtest-number-delta-perl \
     libdevel-size-perl
 
+
 # Stage for installing/compiling cpanfile dependencies
 FROM modperl AS builder
 
@@ -138,13 +139,18 @@ COPY ./cpanfile /tmp/cpanfile
 # Add ProductOpener runtime dependencies from cpan
 RUN cpanm --notest --quiet --skip-satisfied --local-lib /tmp/local/ --installdeps .
 
+
 # Stage for installing/compiling cpanfile dependencies with dev dependencies
 FROM builder AS builder-vscode
 
 # Add ProductOpener runtime dependencies from cpan
 RUN cpanm --with-develop --notest --quiet --skip-satisfied --local-lib /tmp/local/ --installdeps .
 
+
 FROM modperl AS runnable
+
+# enable running "apt search" and node js scripts
+RUN apt update && install_packages npm
 
 # Prepare Apache to include our custom config
 RUN rm /etc/apache2/sites-enabled/000-default.conf
@@ -156,8 +162,10 @@ ENV PATH="/opt/perl/local/bin:${PATH}"
 
 EXPOSE 80
 
+
 FROM runnable AS runnable-vscode
 COPY --from=builder-vscode /tmp/local/ /opt/perl/local/
+
 
 FROM runnable-vscode AS vscode
 # This Dockerfile adds a non-root 'vscode' user with sudo access. However, for Linux,
@@ -181,10 +189,12 @@ RUN install_packages apt-utils dialog 2>&1 \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
+
 FROM runnable-vscode AS perldb
 
 # Readline support for the Perl debugger
 RUN install_packages libterm-readline-gnu-perl libterm-readkey-perl
+
 
 FROM runnable AS withsrc
 
