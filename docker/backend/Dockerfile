@@ -150,7 +150,8 @@ RUN cpanm --with-develop --notest --quiet --skip-satisfied --local-lib /tmp/loca
 FROM modperl AS runnable
 
 # enable running "apt search" and node js scripts
-RUN apt update && install_packages npm
+RUN install_packages npm nano \
+    && apt-get update
 
 # Prepare Apache to include our custom config
 RUN rm /etc/apache2/sites-enabled/000-default.conf
