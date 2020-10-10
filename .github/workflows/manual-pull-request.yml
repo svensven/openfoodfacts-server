@@ -179,4 +179,4 @@ jobs:
         node scripts/refresh_taxonomies.js
         
         # Run unit tests
-        prove -l
+        prove -l --jobs 2
