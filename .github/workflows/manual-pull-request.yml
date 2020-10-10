@@ -55,13 +55,13 @@ jobs:
     
     - run: npm install
     
-    - name: find changed perl files
-      uses: futuratrepadeira/changed-files@v3.3.0
-      id: changed-perl
-      with:
-        repo-token: ${{ github.token }}
-        pattern: '^(cgi|scripts)/.*\.pl$|^lib/ProductOpener/.*\.pm$'
-        result-encoding: 'string'
+#    - name: find changed perl files
+#      uses: futuratrepadeira/changed-files@v3.3.0
+#      id: changed-perl
+#      with:
+#        repo-token: ${{ github.token }}
+#        pattern: '^(cgi|scripts)/.*\.pl$|^lib/ProductOpener/.*\.pm$'
+#        result-encoding: 'string'
     
     - name: prepare, build, and test
       run: |
@@ -170,9 +170,9 @@ jobs:
         
         # Ensure everything compiles
         perl -c -CS -Ilib lib/startup_apache2.pl
-        # node scripts/check_perl.js cgi/*.pl
-        # node scripts/check_perl.js scripts/*.pl
-        node scripts/check_perl.js ${{ steps.changed-perl.outputs.files_created }} ${{ steps.changed-perl.outputs.files_updated }}
+        node scripts/check_perl.js cgi/*.pl
+        node scripts/check_perl.js scripts/*.pl
+        # node scripts/check_perl.js ${{ steps.changed-perl.outputs.files_created }} ${{ steps.changed-perl.outputs.files_updated }}
         
         # Rebuild taxonomies
         perl -CS -I$BUILD_DIR/lib $BUILD_DIR/scripts/build_lang.pl
